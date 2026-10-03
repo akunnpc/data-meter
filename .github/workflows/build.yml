@@ -17,6 +17,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Jalan di 2 kondisi repo:
+      #  1) project udah di-unzip (settings.gradle.kts ada di repo)
+      #  2) repo cuma isi file .zip -> di-unzip otomatis di runner
+      # Folder project (root atau subfolder) disimpan ke PROJECT_DIR.
+      - name: Detect / extract project
+        run: |
+          set -e
+          find_project() {
+            find . -maxdepth 3 -name settings.gradle.kts -not -path "./.git/*" -not -path "*/node_modules/*" | head -1
+          }
+          FOUND="$(find_project)"
+          if [ -z "$FOUND" ]; then
+            ZIP="$(find . -maxdepth 2 -iname '*.zip' -not -path './.git/*' | head -1)"
+            if [ -z "$ZIP" ]; then
+              echo "::error::Ga nemu settings.gradle.kts maupun file .zip di repo"
+              exit 1
+            fi
+            echo "Unzip: $ZIP"
+            mkdir -p _unzipped
+            unzip -q -o "$ZIP" -d _unzipped
+            FOUND="$(find _unzipped -maxdepth 3 -name settings.gradle.kts | head -1)"
+            if [ -z "$FOUND" ]; then
+              echo "::error::Zip ada, tapi isinya ga ada settings.gradle.kts"
+              exit 1
+            fi
+          fi
+          DIR="$(dirname "$FOUND")"
+          echo "PROJECT_DIR=$DIR" >> "$GITHUB_ENV"
+          echo "Project dir: $DIR"
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -26,7 +56,7 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      # gradlew & gradle-wrapper.jar tidak ada di repo, jadi pasang Gradle
+      # gradlew & gradle-wrapper.jar sering ga ikut ke repo, jadi pasang Gradle
       # sesuai gradle-wrapper.properties dan panggil `gradle` langsung.
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -35,6 +65,7 @@ jobs:
 
       # debug.keystore ada di .gitignore, tapi dipakai signingConfig debug.
       - name: Generate debug.keystore
+        working-directory: ${{ env.PROJECT_DIR }}
         run: |
           if [ ! -f debug.keystore ]; then
             keytool -genkeypair -v \
@@ -47,17 +78,19 @@ jobs:
           fi
 
       - name: Build Debug APK
+        working-directory: ${{ env.PROJECT_DIR }}
         run: gradle assembleDebug --stacktrace
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
           name: datameter-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
       # Test dipisah & ga ngeblok APK kalau ada test yang gagal.
       - name: Run Unit Tests
+        working-directory: ${{ env.PROJECT_DIR }}
         continue-on-error: true
         run: gradle testDebugUnitTest --continue --stacktrace
 
@@ -66,6 +99,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: datameter-test-reports
-          path: app/build/reports/tests/
+          path: ${{ env.PROJECT_DIR }}/app/build/reports/tests/
           if-no-files-found: ignore
           
