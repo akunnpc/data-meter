@@ -23,6 +23,8 @@ class QuotaCheckWorker(
             appContainer.checkQuotaAlertsUseCase { threshold, usedBytes, limitBytes ->
                 NotificationHelper.showQuotaAlert(context, threshold, usedBytes, limitBytes)
             }
+            appContainer.recordNetworkActivitySnapshotUseCase()
+            appContainer.performActivityRetentionCleanupUseCase()
             Result.success()
         } catch (_: Exception) {
             Result.retry()

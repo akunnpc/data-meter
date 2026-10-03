@@ -42,12 +42,14 @@ import com.mamang.datameter.presentation.components.DataMeterTopAppBar
 import com.mamang.datameter.presentation.components.EmptyStateView
 import com.mamang.datameter.presentation.components.UsageAccessPermissionCard
 import com.mamang.datameter.presentation.dashboard.components.PeriodSelectorRow
+import com.mamang.datameter.presentation.dashboard.components.RecentActivityCard
 import com.mamang.datameter.presentation.dashboard.components.UsageChartView
 import com.mamang.datameter.presentation.dashboard.components.UsageSummaryCard
 
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel,
+    onNavigateToHistory: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -57,6 +59,7 @@ fun DashboardScreen(
     val hasPermission by viewModel.hasPermission.collectAsStateWithLifecycle()
     val selectedPeriod by viewModel.selectedPeriod.collectAsStateWithLifecycle()
     val chartFilter by viewModel.chartFilter.collectAsStateWithLifecycle()
+    val recentActivities by viewModel.recentActivities.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     // Refresh when returning from Settings (e.g., granting Usage Access)
@@ -191,6 +194,13 @@ fun DashboardScreen(
                             selectedFilter = chartFilter,
                             onFilterChanged = { viewModel.setChartFilter(it) },
                             unitFormat = data.unitFormat
+                        )
+
+                        // Recent Activity Section
+                        RecentActivityCard(
+                            recentActivities = recentActivities,
+                            unitFormat = data.unitFormat,
+                            onViewAllClick = onNavigateToHistory
                         )
                     }
                 }

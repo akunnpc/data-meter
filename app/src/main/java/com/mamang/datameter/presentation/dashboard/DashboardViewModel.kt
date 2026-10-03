@@ -12,12 +12,15 @@ import com.mamang.datameter.core.utils.PeriodType
 import com.mamang.datameter.core.utils.PermissionHelper
 import com.mamang.datameter.domain.model.ChartDataFilter
 import com.mamang.datameter.domain.model.DailyUsagePoint
+import com.mamang.datameter.domain.model.NetworkActivity
 import com.mamang.datameter.domain.model.QuotaSettings
 import com.mamang.datameter.domain.model.QuotaStatus
 import com.mamang.datameter.domain.model.UsageSummary
 import com.mamang.datameter.domain.usecase.GetNetworkUsageUseCase
 import com.mamang.datameter.domain.usecase.GetQuotaStatusUseCase
+import com.mamang.datameter.domain.usecase.GetRecentActivitiesUseCase
 import com.mamang.datameter.domain.usecase.GetUsageChartDataUseCase
+import com.mamang.datameter.domain.usecase.RecordNetworkActivitySnapshotUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -43,6 +46,8 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
     private val getNetworkUsageUseCase: GetNetworkUsageUseCase = appContainer.getNetworkUsageUseCase
     private val getUsageChartDataUseCase: GetUsageChartDataUseCase = appContainer.getUsageChartDataUseCase
     private val getQuotaStatusUseCase: GetQuotaStatusUseCase = appContainer.getQuotaStatusUseCase
+    private val getRecentActivitiesUseCase: GetRecentActivitiesUseCase = appContainer.getRecentActivitiesUseCase
+    private val recordNetworkActivitySnapshotUseCase: RecordNetworkActivitySnapshotUseCase = appContainer.recordNetworkActivitySnapshotUseCase
     private val preferencesRepository = appContainer.preferencesRepository
 
     val connectionState: StateFlow<NetworkConnectionState> = networkMonitor.connectionState
@@ -50,6 +55,13 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = networkMonitor.getCurrentConnectionState()
+        )
+
+    val recentActivities: StateFlow<List<NetworkActivity>> = getRecentActivitiesUseCase(limit = 4)
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
         )
 
     private val _hasPermission = MutableStateFlow(
@@ -106,6 +118,11 @@ class DashboardViewModel(application: Application) : AndroidViewModel(applicatio
             }
 
             try {
+                try {
+                    recordNetworkActivitySnapshotUseCase()
+                } catch (_: Exception) {
+                }
+
                 val userSettings = preferencesRepository.userSettingsFlow.first()
                 val quotaSettings = preferencesRepository.quotaSettingsFlow.first()
 

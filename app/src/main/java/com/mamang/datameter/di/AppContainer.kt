@@ -7,25 +7,36 @@ import com.mamang.datameter.data.local.datastore.PreferencesManager
 import com.mamang.datameter.data.local.room.DataMeterDatabase
 import com.mamang.datameter.data.networkstats.NetworkStatsDataSource
 import com.mamang.datameter.data.networkstats.NetworkStatsDataSourceImpl
+import com.mamang.datameter.data.repository.ActivityRepositoryImpl
 import com.mamang.datameter.data.repository.NetworkStatsRepositoryImpl
 import com.mamang.datameter.data.repository.PreferencesRepositoryImpl
+import com.mamang.datameter.domain.repository.ActivityRepository
 import com.mamang.datameter.domain.repository.NetworkStatsRepository
 import com.mamang.datameter.domain.repository.PreferencesRepository
 import com.mamang.datameter.domain.usecase.CheckQuotaAlertsUseCase
+import com.mamang.datameter.domain.usecase.GetActivityHistoryUseCase
 import com.mamang.datameter.domain.usecase.GetAppUsageListUseCase
 import com.mamang.datameter.domain.usecase.GetNetworkUsageUseCase
 import com.mamang.datameter.domain.usecase.GetQuotaStatusUseCase
+import com.mamang.datameter.domain.usecase.GetRecentActivitiesUseCase
 import com.mamang.datameter.domain.usecase.GetUsageChartDataUseCase
+import com.mamang.datameter.domain.usecase.PerformActivityRetentionCleanupUseCase
+import com.mamang.datameter.domain.usecase.RecordNetworkActivitySnapshotUseCase
 
 interface AppContainer {
     val networkMonitor: NetworkMonitor
     val networkStatsRepository: NetworkStatsRepository
     val preferencesRepository: PreferencesRepository
+    val activityRepository: ActivityRepository
     val getNetworkUsageUseCase: GetNetworkUsageUseCase
     val getAppUsageListUseCase: GetAppUsageListUseCase
     val getUsageChartDataUseCase: GetUsageChartDataUseCase
     val getQuotaStatusUseCase: GetQuotaStatusUseCase
     val checkQuotaAlertsUseCase: CheckQuotaAlertsUseCase
+    val getRecentActivitiesUseCase: GetRecentActivitiesUseCase
+    val getActivityHistoryUseCase: GetActivityHistoryUseCase
+    val recordNetworkActivitySnapshotUseCase: RecordNetworkActivitySnapshotUseCase
+    val performActivityRetentionCleanupUseCase: PerformActivityRetentionCleanupUseCase
 }
 
 class AppContainerImpl(private val context: Context) : AppContainer {
@@ -54,6 +65,10 @@ class AppContainerImpl(private val context: Context) : AppContainer {
         PreferencesRepositoryImpl(preferencesManager, database.quotaAlertDao())
     }
 
+    override val activityRepository: ActivityRepository by lazy {
+        ActivityRepositoryImpl(context, database.networkActivityDao())
+    }
+
     override val getNetworkUsageUseCase: GetNetworkUsageUseCase by lazy {
         GetNetworkUsageUseCase(networkStatsRepository)
     }
@@ -72,5 +87,21 @@ class AppContainerImpl(private val context: Context) : AppContainer {
 
     override val checkQuotaAlertsUseCase: CheckQuotaAlertsUseCase by lazy {
         CheckQuotaAlertsUseCase(getQuotaStatusUseCase, preferencesRepository)
+    }
+
+    override val getRecentActivitiesUseCase: GetRecentActivitiesUseCase by lazy {
+        GetRecentActivitiesUseCase(activityRepository)
+    }
+
+    override val getActivityHistoryUseCase: GetActivityHistoryUseCase by lazy {
+        GetActivityHistoryUseCase(activityRepository)
+    }
+
+    override val recordNetworkActivitySnapshotUseCase: RecordNetworkActivitySnapshotUseCase by lazy {
+        RecordNetworkActivitySnapshotUseCase(activityRepository)
+    }
+
+    override val performActivityRetentionCleanupUseCase: PerformActivityRetentionCleanupUseCase by lazy {
+        PerformActivityRetentionCleanupUseCase(activityRepository)
     }
 }

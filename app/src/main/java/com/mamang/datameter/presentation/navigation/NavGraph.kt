@@ -22,6 +22,8 @@ import com.mamang.datameter.presentation.apps.AppsScreen
 import com.mamang.datameter.presentation.apps.AppsViewModel
 import com.mamang.datameter.presentation.dashboard.DashboardScreen
 import com.mamang.datameter.presentation.dashboard.DashboardViewModel
+import com.mamang.datameter.presentation.history.HistoryScreen
+import com.mamang.datameter.presentation.history.HistoryViewModel
 import com.mamang.datameter.presentation.quota.QuotaScreen
 import com.mamang.datameter.presentation.quota.QuotaViewModel
 import com.mamang.datameter.presentation.settings.SettingsScreen
@@ -74,7 +76,23 @@ fun MainScreen(
         ) {
             composable(Screen.Dashboard.route) {
                 val viewModel: DashboardViewModel = viewModel()
-                DashboardScreen(viewModel = viewModel)
+                DashboardScreen(
+                    viewModel = viewModel,
+                    onNavigateToHistory = {
+                        navController.navigate(Screen.History.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                )
+            }
+
+            composable(Screen.History.route) {
+                val viewModel: HistoryViewModel = viewModel()
+                HistoryScreen(viewModel = viewModel)
             }
 
             composable(Screen.Applications.route) {

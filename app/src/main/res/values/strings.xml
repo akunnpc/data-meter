@@ -3,6 +3,7 @@
 
     <!-- Navigation -->
     <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_history">Riwayat</string>
     <string name="nav_apps">Aplikasi</string>
     <string name="nav_quota">Kuota</string>
     <string name="nav_settings">Pengaturan</string>
@@ -103,4 +104,17 @@
     <!-- Empty State -->
     <string name="empty_usage_data">Tidak ada data penggunaan untuk periode ini.</string>
     <string name="refresh_btn">Segarkan</string>
+
+    <!-- History / Riwayat -->
+    <string name="history_title">Riwayat Aktivitas</string>
+    <string name="recent_activity_title">Aktivitas Terakhir</string>
+    <string name="view_all">Lihat Semua</string>
+    <string name="history_empty">Belum ada riwayat aktivitas jaringan untuk periode ini.</string>
+    <string name="history_empty_desc">DataMeter mencatat perubahan penggunaan data setiap menit saat aplikasi mengakses internet.</string>
+    <string name="history_filter_all">Semua</string>
+    <string name="history_sort_newest">Terbaru</string>
+    <string name="history_sort_oldest">Terlama</string>
+    <string name="history_summary_events">%1$d aktivitas tercatat</string>
+    <string name="last_used_data">Terakhir: %1$s</string>
+    <string name="recent_activity_empty">Aktivitas penggunaan data terbaru akan muncul di sini secara otomatis.</string>
 </resources>

@@ -6,13 +6,18 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [QuotaAlertEntity::class],
-    version = 1,
+    entities = [
+        QuotaAlertEntity::class,
+        NetworkActivityEntity::class,
+        AppSnapshotEntity::class
+    ],
+    version = 2,
     exportSchema = false
 )
 abstract class DataMeterDatabase : RoomDatabase() {
 
     abstract fun quotaAlertDao(): QuotaAlertDao
+    abstract fun networkActivityDao(): NetworkActivityDao
 
     companion object {
         @Volatile

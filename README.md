@@ -16,6 +16,13 @@ DataMeter adalah aplikasi Android production-ready berprinsip **Local-First** un
   - 30 Hari Terakhir
   - Bulan Ini (berdasarkan siklus tagihan kuota)
   - Penyesuaian zona waktu perangkat (tidak mengasumsikan UTC).
+- **Riwayat Aktivitas Jaringan (Activity History)**:
+  - Pencatatan aktivitas penggunaan data secara kronologis dengan ketelitian waktu hingga detik (`HH:mm:ss`).
+  - Interval snapshot efisien (~1 menit) yang hanya mencatat saat terjadi perubahan data (`delta > 0`) tanpa membebani baterai.
+  - Rincian per aktivitas: Waktu, Nama Aplikasi, Ikon, Unduh, Unggah, Total, dan Jenis Jaringan (Wi-Fi / Seluler).
+  - Filter lengkap: Tanggal (Hari Ini, 7 Hari, 30 Hari, Bulan Ini), Jenis Jaringan (Semua, Wi-Fi, Seluler), Pencarian Aplikasi, dan Pengurutan (Terbaru/Terlama).
+  - Bagian "Aktivitas Terakhir" pada Dashboard untuk pemantauan langsung.
+  - Penyimpanan database cerdas dengan retensi & agregasi bertingkat (detail per menit < 7 hari, agregasi per jam 7–30 hari, agregasi per hari > 30 hari) agar ukuran database tetap kecil tanpa kehilangan total statistik.
 - **Grafik Penggunaan Interaktif**:
   - Grafik batang tersusun (stacked bar) bertenaga Canvas Jetpack Compose.
   - Filter grafik: Semua, Seluler, dan Wi-Fi.

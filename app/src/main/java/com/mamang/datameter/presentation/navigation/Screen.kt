@@ -4,10 +4,12 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.Dashboard
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Apps
 import androidx.compose.material.icons.outlined.Dashboard
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.PieChart
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -24,6 +26,13 @@ sealed class Screen(
         titleRes = R.string.nav_dashboard,
         selectedIcon = Icons.Filled.Dashboard,
         unselectedIcon = Icons.Outlined.Dashboard
+    )
+
+    data object History : Screen(
+        route = "history",
+        titleRes = R.string.nav_history,
+        selectedIcon = Icons.Filled.History,
+        unselectedIcon = Icons.Outlined.History
     )
 
     data object Applications : Screen(
@@ -48,6 +57,6 @@ sealed class Screen(
     )
 
     companion object {
-        val bottomNavItems = listOf(Dashboard, Applications, Quota, Settings)
+        val bottomNavItems = listOf(Dashboard, History, Applications, Quota, Settings)
     }
 }
