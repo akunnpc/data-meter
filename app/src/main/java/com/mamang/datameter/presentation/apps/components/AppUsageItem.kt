@@ -16,6 +16,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
+import androidx.compose.material.icons.filled.Apps
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.WifiTethering
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -109,10 +115,10 @@ fun AppUsageItem(
                             .clip(RoundedCornerShape(10.dp))
                     )
                 } else {
-                    DefaultAppIcon()
+                    DefaultAppIcon(packageName = app.packageName, isSystem = app.isSystemApp)
                 }
             } else {
-                DefaultAppIcon()
+                DefaultAppIcon(packageName = app.packageName, isSystem = app.isSystemApp)
             }
 
             Spacer(modifier = Modifier.width(14.dp))
@@ -164,7 +170,17 @@ fun AppUsageItem(
 }
 
 @Composable
-private fun DefaultAppIcon() {
+private fun DefaultAppIcon(packageName: String, isSystem: Boolean) {
+    val icon = when {
+        packageName.contains("tethering") -> Icons.Filled.WifiTethering
+        packageName.contains("removed") || packageName.contains("uid.") -> Icons.Filled.Delete
+        packageName.contains("downloads") -> Icons.Filled.Download
+        packageName.contains("media") -> Icons.Filled.PlayCircle
+        packageName.contains("phone") -> Icons.Filled.Phone
+        isSystem -> Icons.Filled.Android
+        else -> Icons.Filled.Apps
+    }
+
     Box(
         modifier = Modifier
             .size(44.dp)
@@ -173,7 +189,7 @@ private fun DefaultAppIcon() {
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = Icons.Filled.Android,
+            imageVector = icon,
             contentDescription = null,
             modifier = Modifier.size(24.dp),
             tint = MaterialTheme.colorScheme.onPrimaryContainer

@@ -173,11 +173,24 @@ class NetworkStatsDataSourceImpl(
 
             val result = mutableListOf<AppUsage>()
 
+            // Pre-cache all installed applications by UID to quickly resolve names and icons
+            val installedAppsByUid: Map<Int, ApplicationInfo> = try {
+                val apps = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    packageManager.getInstalledApplications(PackageManager.ApplicationInfoFlags.of(0))
+                } else {
+                    @Suppress("DEPRECATION")
+                    packageManager.getInstalledApplications(0)
+                }
+                apps.associateBy { it.uid }
+            } catch (_: Exception) {
+                emptyMap()
+            }
+
             for ((uid, acc) in uidUsageMap) {
                 val totalBytes = acc.mobileRx + acc.mobileTx + acc.wifiRx + acc.wifiTx
                 if (totalBytes <= 0L) continue
 
-                val (appName, packageName, isSystem) = resolveAppDetails(uid)
+                val (appName, packageName, isSystem) = resolveAppDetails(uid, installedAppsByUid)
                 result.add(
                     AppUsage(
                         uid = uid,
@@ -197,37 +210,97 @@ class NetworkStatsDataSourceImpl(
             result
         }
 
-    private fun resolveAppDetails(uid: Int): Triple<String, String, Boolean> {
+    private fun resolveAppDetails(
+        uid: Int,
+        installedAppsByUid: Map<Int, ApplicationInfo>
+    ): Triple<String, String, Boolean> {
+        // 1. Check known system-level UIDs
         when (uid) {
             0 -> return Triple("Sistem Android (Kernel)", "android.kernel", true)
             1000 -> return Triple("Sistem Android (OS)", "android.os", true)
-            -4 -> return Triple("Aplikasi Dihapus (Removed)", "android.removed", true)
-            -5 -> return Triple("Tethering / Hotspot", "android.tethering", true)
+            1001 -> return Triple("Telefoni & Radio", "android.phone", true)
+            1013 -> return Triple("Media Server (Audio/Video)", "android.media", true)
+            1021 -> return Triple("GPS & Layanan Lokasi", "android.location", true)
+            1073 -> return Triple("Pengelola Unduhan", "com.android.providers.downloads", true)
+            -4 -> return Triple("Aplikasi yang Dihapus", "android.removed", false)
+            -5 -> return Triple("Tethering & Hotspot", "android.tethering", false)
         }
 
+        // 2. Direct lookup from installed apps cache by UID
+        installedAppsByUid[uid]?.let { appInfo ->
+            val label = try {
+                packageManager.getApplicationLabel(appInfo).toString()
+            } catch (_: Exception) {
+                ""
+            }
+            val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+            return Triple(
+                if (label.isNotBlank()) label else appInfo.packageName,
+                appInfo.packageName,
+                isSystem
+            )
+        }
+
+        // 3. Query packages assigned to this UID
         val packages = try {
             packageManager.getPackagesForUid(uid)
         } catch (_: Exception) {
             null
         }
 
-        if (packages.isNullOrEmpty()) {
-            return Triple("UID $uid", "uid.$uid", true)
+        if (!packages.isNullOrEmpty()) {
+            for (pkg in packages) {
+                try {
+                    val appInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        packageManager.getApplicationInfo(pkg, PackageManager.ApplicationInfoFlags.of(0))
+                    } else {
+                        @Suppress("DEPRECATION")
+                        packageManager.getApplicationInfo(pkg, 0)
+                    }
+                    val label = packageManager.getApplicationLabel(appInfo).toString()
+                    val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+                    if (label.isNotBlank()) {
+                        return Triple(label, pkg, isSystem)
+                    }
+                } catch (_: Exception) {
+                    // Try next package in shared UID
+                }
+            }
+            val primaryPkg = packages[0]
+            return Triple(primaryPkg, primaryPkg, false)
         }
 
-        val primaryPkg = packages[0]
-        return try {
-            val appInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                packageManager.getApplicationInfo(primaryPkg, PackageManager.ApplicationInfoFlags.of(0))
-            } else {
-                @Suppress("DEPRECATION")
-                packageManager.getApplicationInfo(primaryPkg, 0)
-            }
-            val label = packageManager.getApplicationLabel(appInfo).toString()
-            val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
-            Triple(if (label.isNotBlank()) label else primaryPkg, primaryPkg, isSystem)
+        // 4. Fallback to getNameForUid
+        val nameForUid = try {
+            packageManager.getNameForUid(uid)
         } catch (_: Exception) {
-            Triple(primaryPkg, primaryPkg, false)
+            null
+        }
+
+        if (!nameForUid.isNullOrBlank()) {
+            try {
+                val appInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    packageManager.getApplicationInfo(nameForUid, PackageManager.ApplicationInfoFlags.of(0))
+                } else {
+                    @Suppress("DEPRECATION")
+                    packageManager.getApplicationInfo(nameForUid, 0)
+                }
+                val label = packageManager.getApplicationLabel(appInfo).toString()
+                val isSystem = (appInfo.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+                return Triple(if (label.isNotBlank()) label else nameForUid, nameForUid, isSystem)
+            } catch (_: Exception) {
+                // Return clean name
+                if (!nameForUid.startsWith("uid:")) {
+                    return Triple(nameForUid, nameForUid, false)
+                }
+            }
+        }
+
+        // 5. Final fallback: distinguish uninstalled user app from system daemon
+        return if (uid >= 10000) {
+            Triple("Aplikasi Dihapus (UID $uid)", "android.uid.$uid", false)
+        } else {
+            Triple("Layanan Sistem (UID $uid)", "android.uid.$uid", true)
         }
     }
 }

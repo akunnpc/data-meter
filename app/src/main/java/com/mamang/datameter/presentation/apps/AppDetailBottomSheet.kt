@@ -20,11 +20,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
+import androidx.compose.material.icons.filled.Apps
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.SignalCellularAlt
 import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material.icons.filled.WifiTethering
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -107,10 +113,10 @@ fun AppDetailBottomSheet(
                             .clip(RoundedCornerShape(16.dp))
                     )
                 } else {
-                    DefaultAppDetailIcon()
+                    DefaultAppDetailIcon(packageName = app.packageName, isSystem = app.isSystemApp)
                 }
             } else {
-                DefaultAppDetailIcon()
+                DefaultAppDetailIcon(packageName = app.packageName, isSystem = app.isSystemApp)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -304,7 +310,17 @@ private fun NetworkBreakdownCard(
 }
 
 @Composable
-private fun DefaultAppDetailIcon() {
+private fun DefaultAppDetailIcon(packageName: String, isSystem: Boolean) {
+    val icon = when {
+        packageName.contains("tethering") -> Icons.Filled.WifiTethering
+        packageName.contains("removed") || packageName.contains("uid.") -> Icons.Filled.Delete
+        packageName.contains("downloads") -> Icons.Filled.Download
+        packageName.contains("media") -> Icons.Filled.PlayCircle
+        packageName.contains("phone") -> Icons.Filled.Phone
+        isSystem -> Icons.Filled.Android
+        else -> Icons.Filled.Apps
+    }
+
     Box(
         modifier = Modifier
             .size(72.dp)
@@ -313,7 +329,7 @@ private fun DefaultAppDetailIcon() {
         contentAlignment = Alignment.Center
     ) {
         Icon(
-            imageVector = Icons.Filled.Android,
+            imageVector = icon,
             contentDescription = null,
             modifier = Modifier.size(40.dp),
             tint = MaterialTheme.colorScheme.onPrimaryContainer
