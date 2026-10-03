@@ -1,0 +1,106 @@
+<resources>
+    <string name="app_name">DataMeter</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_apps">Aplikasi</string>
+    <string name="nav_quota">Kuota</string>
+    <string name="nav_settings">Pengaturan</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">DataMeter</string>
+    <string name="network_status_connected_wifi">Terhubung ke Wi-Fi</string>
+    <string name="network_status_connected_mobile">Terhubung ke Data Seluler</string>
+    <string name="network_status_disconnected">Tidak Terhubung ke Internet</string>
+    <string name="network_status_cellular">Data Seluler</string>
+    <string name="network_status_wifi">Wi-Fi</string>
+    <string name="download_label">Unduh</string>
+    <string name="upload_label">Unggah</string>
+    <string name="total_label">Total</string>
+    <string name="total_usage_title">Total Penggunaan</string>
+    <string name="mobile_data_card_title">Data Seluler</string>
+    <string name="wifi_card_title">Wi-Fi</string>
+    <string name="used_label">Terpakai</string>
+    <string name="remaining_label">Tersisa</string>
+    <string name="usage_percentage_label">Penggunaan</string>
+
+    <!-- Periods -->
+    <string name="period_today">Hari Ini</string>
+    <string name="period_last_7_days">7 Hari Terakhir</string>
+    <string name="period_last_30_days">30 Hari Terakhir</string>
+    <string name="period_this_month">Bulan Ini</string>
+    <string name="period_custom">Rentang Kustom</string>
+    <string name="select_period">Pilih Periode</string>
+
+    <!-- Chart -->
+    <string name="chart_title">Grafik Penggunaan</string>
+    <string name="chart_filter_all">Semua</string>
+    <string name="chart_filter_mobile">Seluler</string>
+    <string name="chart_filter_wifi">Wi-Fi</string>
+    <string name="chart_empty">Tidak ada data grafik untuk periode ini</string>
+
+    <!-- Applications -->
+    <string name="apps_title">Penggunaan Aplikasi</string>
+    <string name="apps_search_hint">Cari aplikasi...</string>
+    <string name="apps_filter_all">Semua</string>
+    <string name="apps_filter_mobile">Data Seluler</string>
+    <string name="apps_filter_wifi">Wi-Fi</string>
+    <string name="apps_empty">Tidak ada data penggunaan aplikasi</string>
+    <string name="apps_unavailable">Statistik jaringan tingkat aplikasi tidak tersedia pada perangkat ini.</string>
+    <string name="app_detail_title">Rincian Aplikasi</string>
+    <string name="package_name_label">Nama Paket</string>
+
+    <!-- Quota -->
+    <string name="quota_title">Batas &amp; Kuota</string>
+    <string name="quota_enabled_label">Aktifkan Pelacak Kuota</string>
+    <string name="quota_limit_label">Jumlah Kuota</string>
+    <string name="quota_unit_label">Satuan</string>
+    <string name="quota_reset_period_label">Periode Reset</string>
+    <string name="quota_reset_day_label">Tanggal Reset Bulanan</string>
+    <string name="quota_warning_thresholds">Peringatan Kuota</string>
+    <string name="quota_threshold_50">Peringatan 50%</string>
+    <string name="quota_threshold_75">Peringatan 75%</string>
+    <string name="quota_threshold_90">Peringatan 90%</string>
+    <string name="quota_threshold_100">Peringatan 100% (Kuota Habis)</string>
+    <string name="save_quota_settings">Simpan Pengaturan Kuota</string>
+    <string name="quota_saved_success">Pengaturan kuota berhasil disimpan</string>
+
+    <!-- Permission -->
+    <string name="permission_title">Izin Akses Penggunaan Diperlukan</string>
+    <string name="permission_desc">DataMeter membutuhkan izin \'Akses Penggunaan\' untuk membaca statistik data jaringan Android secara lokal. Data tidak pernah meninggalkan perangkat Anda.</string>
+    <string name="grant_permission_btn">Buka Pengaturan Akses</string>
+    <string name="notification_permission_title">Izin Notifikasi</string>
+    <string name="notification_permission_desc">Izinkan notifikasi agar DataMeter dapat memberi peringatan saat kuota internet hampir habis.</string>
+    <string name="grant_notification_btn">Izinkan Notifikasi</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Pengaturan</string>
+    <string name="settings_theme_label">Tema Tampilan</string>
+    <string name="theme_system">Default Sistem</string>
+    <string name="theme_light">Terang</string>
+    <string name="theme_dark">Gelap</string>
+    <string name="settings_unit_label">Format Satuan Data</string>
+    <string name="unit_binary">Biner (1024 KB = 1 MB)</string>
+    <string name="unit_decimal">Desimal (1000 KB = 1 MB)</string>
+    <string name="settings_default_period_label">Periode Awal Standar</string>
+    <string name="settings_reset_label">Reset Pengaturan Lokal</string>
+    <string name="settings_reset_desc">Kembalikan semua preferensi dan kuota ke kondisi bawaan.</string>
+    <string name="settings_reset_confirm_title">Reset Pengaturan?</string>
+    <string name="settings_reset_confirm_message">Tindakan ini akan mengembalikan seluruh konfigurasi kuota dan preferensi lokal ke pengaturan awal. Apakah Anda yakin?</string>
+    <string name="confirm_reset">Reset</string>
+    <string name="cancel">Batal</string>
+    <string name="about_title">Tentang DataMeter</string>
+    <string name="about_version">Versi 1.0.0</string>
+    <string name="about_privacy_title">Privasi &amp; Keamanan 100% Lokal</string>
+    <string name="about_privacy_desc">DataMeter diproses sepenuhnya di dalam perangkat. Tidak ada server, tidak ada akun, tidak ada analitik, tidak ada pelacak, dan tidak ada iklan.</string>
+
+    <!-- Notification Channel -->
+    <string name="notif_channel_name">Peringatan Kuota DataMeter</string>
+    <string name="notif_channel_desc">Notifikasi saat penggunaan kuota data internet mencapai batas tertentu</string>
+    <string name="notif_alert_title">Peringatan Kuota DataMeter</string>
+    <string name="notif_alert_body">Penggunaan kuota seluler Anda telah mencapai %1$d%% (%2$s terpakai dari batas %3$s).</string>
+
+    <!-- Empty State -->
+    <string name="empty_usage_data">Tidak ada data penggunaan untuk periode ini.</string>
+    <string name="refresh_btn">Segarkan</string>
+</resources>

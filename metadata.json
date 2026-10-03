@@ -1,0 +1,6 @@
+{
+  "name": "DataMeter",
+  "description": "Local internet data usage monitor for Mobile Data and Wi-Fi with quota tracking, period analytics, and app-level statistics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
