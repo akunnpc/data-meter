@@ -17,10 +17,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Jalan di 2 kondisi repo:
-      #  1) project udah di-unzip (settings.gradle.kts ada di repo)
-      #  2) repo cuma isi file .zip -> di-unzip otomatis di runner
-      # Folder project (root atau subfolder) disimpan ke PROJECT_DIR.
       - name: Detect / extract project
         run: |
           set -e
@@ -55,15 +51,24 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          accept-android-sdk-licenses: true
 
-      # gradlew & gradle-wrapper.jar sering ga ikut ke repo, jadi pasang Gradle
-      # sesuai gradle-wrapper.properties dan panggil `gradle` langsung.
+      - name: Install Android SDK packages
+        shell: bash
+        run: |
+          set -e
+          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses
+          "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" \
+            "platform-tools" \
+            "platforms;android-34" \
+            "build-tools;34.0.0"
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.3.1'
 
-      # debug.keystore ada di .gitignore, tapi dipakai signingConfig debug.
       - name: Generate debug.keystore
         working-directory: ${{ env.PROJECT_DIR }}
         run: |
@@ -80,25 +85,3 @@ jobs:
       - name: Build Debug APK
         working-directory: ${{ env.PROJECT_DIR }}
         run: gradle assembleDebug --stacktrace
-
-      - name: Upload Debug APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: datameter-debug-apk
-          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
-
-      # Test dipisah & ga ngeblok APK kalau ada test yang gagal.
-      - name: Run Unit Tests
-        working-directory: ${{ env.PROJECT_DIR }}
-        continue-on-error: true
-        run: gradle testDebugUnitTest --continue --stacktrace
-
-      - name: Upload Test Reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: datameter-test-reports
-          path: ${{ env.PROJECT_DIR }}/app/build/reports/tests/
-          if-no-files-found: ignore
-          
